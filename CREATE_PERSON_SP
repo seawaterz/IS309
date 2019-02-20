@@ -21,6 +21,7 @@ ERROR MESSAGES:
             VM_PERSON data.  The p_person_ID value returned is the one that 
             corresponds to the person already in the table with this email.
 */
+
 CREATE OR REPLACE PROCEDURE CREATE_PERSON_SP (
     p_person_ID         VM_PERSON.PERSON_ID%TYPE,
     p_person_email      VM_PERSON.PERSON_EMAIL%TYPE,
@@ -64,7 +65,8 @@ rollback;
     
 END;
 /
+
 BEGIN
-    CREATE_PERSON_SP(5,'ain@AMIN.org','Ali','Amin','+47 91919191');
+    CREATE_PERSON_SP(6,'OLE@MORTEN.org','Ali','Amin','+47 91919191');
 END;
 /
