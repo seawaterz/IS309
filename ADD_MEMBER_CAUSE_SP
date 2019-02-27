@@ -1,0 +1,61 @@
+/*
+ADD_MEMBER_CAUSE_SP.  Associate a cause with a member.  Inserts data into the 
+VM_MEMCAUSE table.
+
+PARAMETERS:  Described below
+RETURNS:  No values returned.
+ERROR MESSAGES:
+    Error text:  "Missing mandatory value for parameter (x) in context (y)"
+    Error meaning:  Since both a cause name and an organization id are required, 
+        Missing either one causes this error.  Here, y = 'ADD_MEMBER_CAUSE_SP'.
+	Error effect: Because a mandatory value is not provided, no data are 
+            inserted into the VM_ORG_CAUSE table.
+            
+    Error text:  "Invalid value for parameter (x) in context (y)."
+    Error meaning.  Either the p_cause_name value is not found in VM_MEMCAUSE,
+    or the p_person_id value is not found in the VM_MEMBER table. 
+    Here, y = 'ADD_MEMBER_CAUSE_SP'
+    Error effect:  Because a value is invalid, no data are inserted into the
+            VM_MEMCAUSE table.  
+*/
+
+create or replace procedure ADD_MEMBER_CAUSE_SP (
+    p_person_id     VM_MEMCAUSE.PERSON_ID%TYPE,    -- NOT NULL
+    p_cause_name    VM_MEMCAUSE.CAUSE_NAME%TYPE     -- NOT NULL
+)
+
+IS
+
+ex_error exception;
+err_msg_txt varchar(100) :=null;
+
+BEGIN
+
+if p_person_id is null then
+err_msg_txt := 'Missing mandatory value for parameter PERSON_ID in context ADD_MEMBER_CAUSE_SP';
+raise ex_error;
+elsif p_cause_name is null then
+err_msg_txt := 'Missing mandatory value for parameter CAUSE_NAME in context ADD_MEMBER_CAUSE_SP';
+raise ex_error;
+end if;
+
+    INSERT INTO VM_MEMCAUSE ("PERSON_ID", "CAUSE_NAME")
+    VALUES (p_person_id, p_cause_name);
+    COMMIT;
+
+Exception
+    when ex_error then
+    dbms_output.put_line(err_msg_txt);
+    rollback;
+    when others then
+    dbms_output.put_line(' the error code is: ' || sqlcode);
+    dbms_output.put_line(' the error msg is: ' || sqlerrm);
+    rollback;
+
+END;
+/
+
+BEGIN 
+    ADD_MEMBER_CAUSE_SP(null,'Test1');
+END;
+/
