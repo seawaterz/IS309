@@ -43,10 +43,19 @@ where p_person_email = PERSON_EMAIL;
 
 if p_count > 0 
 then 
-err_msg_txt := 'The email already exists, try another one ';
+err_msg_txt := 'The email ' || p_person_email || '  is already used by ' || p_person_id || ' exists, try another one.';
+raise ex_error;
+elsif p_person_id is null then
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_ID  can not be null.';
 raise ex_error;
 elsif p_person_email is null then
-err_msg_txt := 'the email  must not be null.';
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_EMAIL  can not be null.';
+raise ex_error;
+elsif p_person_given_name is null then
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_GIVEN_NAME  can not be null.';
+raise ex_error;
+elsif p_person_surname is null then
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_SURNAME  can not be null.';
 raise ex_error;
 end if;
 
@@ -67,6 +76,11 @@ END;
 /
 
 BEGIN
-    CREATE_PERSON_SP(6,'OLE@MORTEN.org','Ali','Amin','+47 91919191');
+    CREATE_PERSON_SP(8,'OLE@MORTEN.org','Ali','Amin','+47 91919191');
+END;
+/
+
+BEGIN
+    CREATE_PERSON_SP(11,NULL,'Ali','Amin','+47 91919191');
 END;
 /
