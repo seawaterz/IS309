@@ -30,12 +30,17 @@ CREATE OR REPLACE PROCEDURE CREATE_PERSON_SP (
     p_person_phone      VM_PERSON.PERSON_PHONE%TYPE
 )
 IS
+cursor chk_ID is
+    SELECT PERSON_ID FROM VM_PERSON WHERE PERSON_EMAIL = p_person_email;
+
+
 ex_error exception;
 p_count number (10);
-err_msg_txt varchar(100) :=null;
+err_msg_txt varchar(150) :=null;
+chk_pr_id NUMBER;
 
 BEGIN
-
+/*
 select count (*)
 into p_count 
 from VM_PERSON
@@ -44,25 +49,38 @@ where p_person_email = PERSON_EMAIL;
 if p_count > 0 
 then 
 err_msg_txt := 'The email ' || p_person_email || '  is already used by ' || p_person_id || ' exists, try another one.';
-raise ex_error;
-elsif p_person_id is null then
-err_msg_txt := 'Missing mandatory value for parameter, PERSON_ID  can not be null.';
+raise ex_error; */
+if p_person_id is null then
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_ID  can not be null. 
+The p_person_id value returned is NULL.  ';
 raise ex_error;
 elsif p_person_email is null then
-err_msg_txt := 'Missing mandatory value for parameter, PERSON_EMAIL  can not be null.';
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_EMAIL  can not be null. 
+The p_person_id value returned is NULL.  ';
 raise ex_error;
 elsif p_person_given_name is null then
-err_msg_txt := 'Missing mandatory value for parameter, PERSON_GIVEN_NAME  can not be null.';
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_GIVEN_NAME  can not be null. The p_person_id value returned 
+            is NULL.  ';
 raise ex_error;
 elsif p_person_surname is null then
-err_msg_txt := 'Missing mandatory value for parameter, PERSON_SURNAME  can not be null.';
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_SURNAME  can not be null. The p_person_id value returned 
+            is NULL.  ';
 raise ex_error;
 end if;
+
+OPEN chk_ID;
+FETCH chk_ID INTO chk_pr_id;
+    IF chk_ID%FOUND THEN
+        err_msg_txt := 'THE EMAIL IS ALREADY EXISTED ' || p_person_email || ' IN CONTEXT TO PERSON ID WHICH IS ' || chk_pr_id ;
+        RAISE ex_error;
+    END IF;
+    CLOSE chk_ID;
+
 
     INSERT INTO VM_PERSON ("PERSON_ID", "PERSON_EMAIL", "PERSON_GIVEN_NAME", "PERSON_SURNAME", "PERSON_PHONE")
     VALUES (p_person_id, p_person_email, p_person_given_name, p_person_surname, p_person_phone);
     COMMIT;
-    
+
 Exception
 when ex_error then
 dbms_output.put_line(err_msg_txt);
