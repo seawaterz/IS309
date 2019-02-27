@@ -1,0 +1,60 @@
+/*
+ADD_OPP_SKILL_SP.  Associates an opportunity with a required skill.  Inserts 
+data into the VM_OPPSKILL table.
+
+PARAMETERS:  Described below
+RETURNS:  No values returned.
+ERROR MESSAGES:
+    Error text:  "Missing mandatory value for parameter (x) in context (y)"
+    Error meaning:  Since both a skill name and an opportunity id are required, 
+        Missing either one causes this error.  Here, y = 'ADD_OPP_SKILL_SP'.
+	Error effect: Because a mandatory value is not provided, no data are 
+            inserted into the VM_OPPSKILL table.
+            
+    Error text:  "Invalid value for parameter (x) in context (y)."
+    Error meaning.  Either the p_skill_name value is not found in VM_SKILL,
+    or the p_opp_id value is not found in the VM_OPPORTUNITY  table. 
+    Here, y = 'ADD_OPP_SKILL_SP'.
+    Error effect:  Because a value is invalid, no data are inserted into the
+            VM_OPPSKILL table.  
+*/
+
+create or replace procedure ADD_OPP_SKILL_SP (
+    p_opp_id        VM_OPPSKILL.OPPORTUNITY_ID%TYPE,    -- NOT NULL
+    p_skill_name    VM_OPPSKILL.SKILL_NAME%TYPE     -- NOT NULL
+)
+IS
+
+ex_error exception;
+err_msg_txt varchar(100) :=null;
+
+BEGIN
+
+if p_opp_id is null then
+err_msg_txt := 'Missing mandatory value for parameter OPPORTUNITY_ID in context ADD_OPP_SKILL_SP';
+raise ex_error;
+elsif p_skill_name is null then
+err_msg_txt := 'Missing mandatory value for parameter SKILL_NAME in context ADD_OPP_SKILL_SP';
+raise ex_error;
+end if;
+
+    INSERT INTO VM_OPPSKILL ("OPPORTUNITY_ID", "SKILL_NAME")
+    VALUES (p_opp_id, p_skill_name);
+    COMMIT;
+
+Exception
+    when ex_error then
+    dbms_output.put_line(err_msg_txt);
+    rollback;
+    when others then
+    dbms_output.put_line(' the error code is: ' || sqlcode);
+    dbms_output.put_line(' the error msg is: ' || sqlerrm);
+    rollback;
+
+END;
+/
+
+BEGIN 
+    ADD_OPP_SKILL_SP(null,'Test1');
+END;
+/
