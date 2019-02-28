@@ -1,24 +1,3 @@
-/*
-ADD_OPP_SKILL_SP.  Associates an opportunity with a required skill.  Inserts 
-data into the VM_OPPSKILL table.
-
-PARAMETERS:  Described below
-RETURNS:  No values returned.
-ERROR MESSAGES:
-    Error text:  "Missing mandatory value for parameter (x) in context (y)"
-    Error meaning:  Since both a skill name and an opportunity id are required, 
-        Missing either one causes this error.  Here, y = 'ADD_OPP_SKILL_SP'.
-	Error effect: Because a mandatory value is not provided, no data are 
-            inserted into the VM_OPPSKILL table.
-            
-    Error text:  "Invalid value for parameter (x) in context (y)."
-    Error meaning.  Either the p_skill_name value is not found in VM_SKILL,
-    or the p_opp_id value is not found in the VM_OPPORTUNITY  table. 
-    Here, y = 'ADD_OPP_SKILL_SP'.
-    Error effect:  Because a value is invalid, no data are inserted into the
-            VM_OPPSKILL table.  
-*/
-
 create or replace procedure ADD_OPP_SKILL_SP (
     p_opp_id        IN  INTEGER,    -- NOT NULL
     p_skill_name    IN  VARCHAR     -- NOT NULL
@@ -37,14 +16,14 @@ into p_count_id
 from VM_OPPORTUNITY
 where OPPORTUNITY_ID = p_opp_id;
 
-if p_count_id = 0 
+if p_opp_id is null then
+err_msg_txt := 'Missing mandatory value for parameter OPPORTUNITY_ID in context ADD_OPP_SKILL_SP';
+raise ex_error;
+
+elsif p_count_id = 0 
 then 
 err_msg_txt := 'Invalid value for parameter p_opp_id in context ADD_OPP_SKILL_SP.
 The skill name is not found in VM_OPPORTUNITY.';
-raise ex_error;
-
-elsif p_opp_id is null then
-err_msg_txt := 'Missing mandatory value for parameter OPPORTUNITY_ID in context ADD_OPP_SKILL_SP';
 raise ex_error;
 end if;
 
@@ -53,14 +32,14 @@ into p_count
 from VM_SKILL
 where p_skill_name = SKILL_NAME;
 
-if p_count = 0 
+if p_skill_name is null then
+err_msg_txt := 'Missing mandatory value for parameter SKILL_NAME in context ADD_OPP_SKILL_SP';
+raise ex_error;
+
+elsif p_count = 0 
 then 
 err_msg_txt := 'Invalid value for parameter p_skill_name in context ADD_OPP_SKILL_SP.
 The skill name is not found in VM_SKILL.';
-raise ex_error;
-
-elsif p_skill_name is null then
-err_msg_txt := 'Missing mandatory value for parameter SKILL_NAME in context ADD_OPP_SKILL_SP';
 raise ex_error;
 end if;
 
