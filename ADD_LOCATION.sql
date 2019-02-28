@@ -23,17 +23,31 @@ create or replace procedure CREATE_LOCATION_SP (
   p_location_street2	             VM_LOCATION.LOCATION_STREET_2%TYPE, 
   p_location_city	                 VM_LOCATION.LOCATION_CITY%TYPE, 
   p_location_administrative_region   VM_LOCATION.LOCATION_ADMINISTRATIVE_REGION%TYPE
+  
 )
 
 IS
 ex_error exception;
+p_count number (10);
 err_msg_txt varchar(200) :=null;
 lv_lid_p_location_id NUMBER;
 p_location_id  NUMBER;
 
 BEGIN
 
-if p_location_country is null then
+select count (*)
+into p_count 
+from VM_LOCATION
+WHERE LOCATION_COUNTRY = p_location_country AND LOCATION_POSTAL_CODE = p_location_postal_code AND LOCATION_STREET_1 = p_location_street1;
+
+IF p_count > 0
+then
+err_msg_txt := 'Location is already existed';
+raise ex_error; 
+IF p_location_id is null THEN
+err_msg_txt:= 'LOCATION ID CANNOT BE null';
+raise ex_error;
+ELSIF  p_location_country is null then
 err_msg_txt := 'Missing mandatory value for parameter, LOCATION_COUNTRY  can not be null. 
 The p_location_country value returned is NULL.  ';
 raise ex_error;
@@ -42,26 +56,14 @@ elsif p_location_postal_code is null then
 err_msg_txt := 'Missing mandatory value for parameter, PERSON_EMAIL  can not be null. 
 The p_person_id value returned is NULL.  ';
 raise ex_error;
+end if; 
+
 end if;
 
 lv_lid_p_location_id := VM_LOCATION_sq.NEXTVAL;
 
-Insert Into VM_LOCATION(
-    "LOCATION_ID",
-    "LOCATION_COUNTRY",
-    "LOCATION_POSTAL_CODE",
-    "LOCATION_STREET_1",
-    "LOCATION_STREET_2",
-    "LOCATION_CITY",
-    "LOCATION_ADMINISTRATIVE_REGION")
-
-VALUES (lv_lid_p_location_id,
-        p_location_country, 
-        p_location_postal_code, 
-        p_location_street1,  
-        p_location_street2, 
-        p_location_city, 
-        p_location_administrative_region);  
+Insert Into VM_LOCATION ("LOCATION_ID", "LOCATION_COUNTRY", "LOCATION_POSTAL_CODE", "LOCATION_STREET_1", "LOCATION_STREET_2", "LOCATION_CITY", "LOCATION_ADMINISTRATIVE_REGION")
+VALUES (lv_lid_p_location_id, p_location_country, p_location_postal_code, p_location_street1,  p_location_street2, p_location_city, p_location_administrative_region);  
 
 commit;
 
@@ -80,8 +82,7 @@ END;
 /
 
 BEGIN 
-CREATE_LOCATION_SP('norway', '6363', 'Dronningensgate 66', 'Dronningensgate 67', 'Kristiansand', 'Vestagder');
-commit;
+CREATE_LOCATION_SP('norway', '6366', 'Dronningensgate 69', 'Dronningensgate 67', 'Kristiansand', 'Vestagder'); 
+COMMIT;
 END;
 /
-
