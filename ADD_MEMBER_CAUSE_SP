@@ -20,20 +20,46 @@ ERROR MESSAGES:
 */
 
 create or replace procedure ADD_MEMBER_CAUSE_SP (
-    p_person_id     VM_MEMCAUSE.PERSON_ID%TYPE,    -- NOT NULL
-    p_cause_name    VM_MEMCAUSE.CAUSE_NAME%TYPE     -- NOT NULL
-)
+    p_person_id     IN  INTEGER,    -- NOT NULL
+    p_cause_name    IN  VARCHAR     -- NOT NULL
+    )
 
 IS
 
+p_count number;
+p_count_id number;
 ex_error exception;
-err_msg_txt varchar(100) :=null;
+err_msg_txt varchar(200) :=null;
 
 BEGIN
 
-if p_person_id is null then
+select count (PERSON_ID)
+into p_count_id 
+from VM_PERSON
+where PERSON_ID = p_person_id;
+
+if p_count_id = 0 
+then 
+err_msg_txt := 'Invalid value for parameter p_person_id in context ADD_MEMBER_CAUSE_SP.
+The skill name is not found in VM_PERSON.';
+raise ex_error;
+
+elsif p_person_id is null then
 err_msg_txt := 'Missing mandatory value for parameter PERSON_ID in context ADD_MEMBER_CAUSE_SP';
 raise ex_error;
+end if;
+
+select count (*)
+into p_count 
+from VM_MEMCAUSE
+where p_cause_name = CAUSE_NAME;
+
+if p_count = 0 
+then 
+err_msg_txt := 'Invalid value for parameter p_cause_name in context ADD_OPP_SKILL_SP.
+The cause name is not found in VM_MEMCAUSE.';
+raise ex_error;
+
 elsif p_cause_name is null then
 err_msg_txt := 'Missing mandatory value for parameter CAUSE_NAME in context ADD_MEMBER_CAUSE_SP';
 raise ex_error;
@@ -56,6 +82,6 @@ END;
 /
 
 BEGIN 
-    ADD_MEMBER_CAUSE_SP(null,'Test1');
+    ADD_MEMBER_CAUSE_SP(2,'Environment');
 END;
 /
