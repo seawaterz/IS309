@@ -16,23 +16,50 @@ ERROR MESSAGES:
     or the p_person_id value is not found in the VM_MEMBER  table. 
     Here, y = 'ADD_MEMBER_SKILL_SP'.
     Error effect:  Because a value is invalid, no data are inserted into the
-            VM_MEMSKILL table.  
+            VM_MEMSKILL table.
 */
 
 create or replace procedure ADD_MEMBER_SKILL_SP (
-    p_person_id     VM_MEMSKILL.PERSON_ID%TYPE,    -- NOT NULL
-    p_skill_name    VM_MEMSKILL.SKILL_NAME%TYPE -- NOT NULL
+    p_person_id     IN  INTEGER,    -- NOT NULL
+    p_skill_name    IN  VARCHAR -- NOT NULL
 )
+
 IS
 
+p_count number;
+p_count_id number;
 ex_error exception;
-err_msg_txt varchar(100) :=null;
+err_msg_txt varchar(200) :=null;
 
 BEGIN
 
-if p_person_id is null then
+select count (PERSON_ID)
+into p_count_id
+from VM_PERSON
+where PERSON_ID = p_person_id;
+
+if p_count_id = 0 
+then 
+err_msg_txt := 'Invalid value for parameter p_person_id in context ADD_MEMBER_SKILL_SP.
+The ID number is not found in VM_PERSON.';
+raise ex_error;
+
+elsif p_person_id is null then
 err_msg_txt := 'Missing mandatory value for parameter PERSON_ID in context ADD_MEMBER_SKILL_SP';
 raise ex_error;
+end if; 
+
+select count (*)
+into p_count 
+from VM_SKILL
+where p_skill_name = SKILL_NAME;
+
+if p_count = 0 
+then 
+err_msg_txt := 'Invalid value for parameter p_skill_name in context ADD_MEMBER_SKILL_SP.
+The skill name is not found in VM_SKILL.';
+raise ex_error;
+
 elsif p_skill_name is null then
 err_msg_txt := 'Missing mandatory value for parameter SKILL_NAME in context ADD_MEMBER_SKILL_SP';
 raise ex_error;
@@ -51,10 +78,11 @@ Exception
     dbms_output.put_line(' the error msg is: ' || sqlerrm);
     rollback;
 
+
 END;
 /
 
 BEGIN 
-    ADD_OPP_SKILL_SP(null,'Test1');
+    ADD_MEMBER_SKILL_SP(76,'History');
 END;
 /
