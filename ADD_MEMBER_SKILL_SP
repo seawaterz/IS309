@@ -38,30 +38,30 @@ into p_count_id
 from VM_PERSON
 where PERSON_ID = p_person_id;
 
-if p_count_id = 0 
+if p_person_id is null then
+err_msg_txt := 'Missing mandatory value for parameter PERSON_ID in context ADD_MEMBER_SKILL_SP';
+raise ex_error; 
+
+elsif p_count_id = 0 
 then 
 err_msg_txt := 'Invalid value for parameter p_person_id in context ADD_MEMBER_SKILL_SP.
 The ID number is not found in VM_PERSON.';
 raise ex_error;
-
-elsif p_person_id is null then
-err_msg_txt := 'Missing mandatory value for parameter PERSON_ID in context ADD_MEMBER_SKILL_SP';
-raise ex_error;
-end if; 
+end if;
 
 select count (*)
 into p_count 
 from VM_SKILL
 where p_skill_name = SKILL_NAME;
 
-if p_count = 0 
+if p_skill_name is null then
+err_msg_txt := 'Missing mandatory value for parameter SKILL_NAME in context ADD_MEMBER_SKILL_SP';
+raise ex_error;
+
+elsif p_count = 0 
 then 
 err_msg_txt := 'Invalid value for parameter p_skill_name in context ADD_MEMBER_SKILL_SP.
 The skill name is not found in VM_SKILL.';
-raise ex_error;
-
-elsif p_skill_name is null then
-err_msg_txt := 'Missing mandatory value for parameter SKILL_NAME in context ADD_MEMBER_SKILL_SP';
 raise ex_error;
 end if;
 
@@ -83,6 +83,6 @@ END;
 /
 
 BEGIN 
-    ADD_MEMBER_SKILL_SP(76,'History');
+    ADD_MEMBER_SKILL_SP(1,NULL);
 END;
 /
