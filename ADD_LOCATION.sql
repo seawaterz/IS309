@@ -27,37 +27,41 @@ create or replace procedure CREATE_LOCATION_SP (
 
 IS
 ex_error exception;
-p_count number (10);
-err_msg_txt varchar(100) :=null;
+err_msg_txt varchar(200) :=null;
 lv_lid_p_location_id NUMBER;
 p_location_id  NUMBER;
 
 BEGIN
-/*
-select count (*)
-into p_count 
-from VM_LOCATION
-WHERE LOCATION_ID = p_location_id;*/
 
-/*
-IF p_count > 0
-then
-err_msg_txt := 'Location is already existed';
-raise ex_error; 
-IF p_location_id is null THEN
-err_msg_txt:= 'LOCATION ID CANNOT BE null';
-raise ex_error;*/
-IF p_location_country is null or p_location_postal_code is null 
-or p_location_street1 is null or p_location_street2 is null or p_location_city is null or p_location_administrative_region is null THEN
-err_msg_txt := 'A mandatory value is missing';
-raise ex_error; 
+if p_location_country is null then
+err_msg_txt := 'Missing mandatory value for parameter, LOCATION_COUNTRY  can not be null. 
+The p_location_country value returned is NULL.  ';
+raise ex_error;
 
+elsif p_location_postal_code is null then
+err_msg_txt := 'Missing mandatory value for parameter, PERSON_EMAIL  can not be null. 
+The p_person_id value returned is NULL.  ';
+raise ex_error;
 end if;
 
 lv_lid_p_location_id := VM_LOCATION_sq.NEXTVAL;
 
-Insert Into VM_LOCATION ("LOCATION_ID", "LOCATION_COUNTRY", "LOCATION_POSTAL_CODE", "LOCATION_STREET_1", "LOCATION_STREET_2", "LOCATION_CITY", "LOCATION_ADMINISTRATIVE_REGION")
-VALUES (lv_lid_p_location_id, p_location_country, p_location_postal_code, p_location_street1,  p_location_street2, p_location_city, p_location_administrative_region);  
+Insert Into VM_LOCATION(
+    "LOCATION_ID",
+    "LOCATION_COUNTRY",
+    "LOCATION_POSTAL_CODE",
+    "LOCATION_STREET_1",
+    "LOCATION_STREET_2",
+    "LOCATION_CITY",
+    "LOCATION_ADMINISTRATIVE_REGION")
+
+VALUES (lv_lid_p_location_id,
+        p_location_country, 
+        p_location_postal_code, 
+        p_location_street1,  
+        p_location_street2, 
+        p_location_city, 
+        p_location_administrative_region);  
 
 commit;
 
